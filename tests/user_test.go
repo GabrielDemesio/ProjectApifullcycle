@@ -1,12 +1,13 @@
-package internal
+package tests
 
 import (
+	"FULLCYCLE/internal/entity"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestNewUser2(t *testing.T) {
-	user, err := NewUser("Gabriel", "Gabriel@gmail.com", "123456")
+	user, err := entity.NewUser("Gabriel", "Gabriel@gmail.com", "123456")
 	assert.Nil(t, err)
 	assert.NotNil(t, user)
 	assert.NotEmpty(t, user.ID)
@@ -16,7 +17,7 @@ func TestNewUser2(t *testing.T) {
 }
 
 func TestUser_CheckPassword(t *testing.T) {
-	user, err := NewUser("Gabriel", "Gabriel@gmail.com", "123456")
+	user, err := entity.NewUser("Gabriel", "Gabriel@gmail.com", "123456")
 	assert.Nil(t, err)
 	assert.True(t, user.CheckPassword("123456"))
 	assert.False(t, user.CheckPassword("12345689"))
