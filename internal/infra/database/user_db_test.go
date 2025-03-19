@@ -13,7 +13,10 @@ func TestCreateUser(t *testing.T) {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&entity.User{})
+	err = db.AutoMigrate(&entity.User{})
+	if err != nil {
+		return
+	}
 	user, _ := entity.NewUser("Gabriel", "test@gmail.com", "123456")
 	userDB := NewUser(db)
 
@@ -34,17 +37,21 @@ func TestFindUserByEmail(t *testing.T) {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&entity.User{})
+	err = db.AutoMigrate(&entity.User{})
+	if err != nil {
+		return
+	}
+
 	user, _ := entity.NewUser("Gabriel", "test@gmail.com", "123456")
 	userDB := NewUser(db)
+
 	err = userDB.CreateUser(user)
 	assert.Nil(t, err)
-	var userFound entity.User
-	err = db.First(&userFound, "email = ?", user.Email).Error
+
+	userFound, err := userDB.FindByEmail(user.Email)
 	assert.Nil(t, err)
 	assert.Equal(t, user.ID, userFound.ID)
 	assert.Equal(t, user.Name, userFound.Name)
 	assert.Equal(t, user.Email, userFound.Email)
 	assert.NotNil(t, userFound.Password)
-
 }
