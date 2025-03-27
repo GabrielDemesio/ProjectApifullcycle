@@ -3,6 +3,7 @@ package database
 import (
 	"FULLCYCLE/internal/entity"
 	"gorm.io/gorm"
+	"log"
 )
 
 type Product struct {
@@ -20,7 +21,7 @@ func (p *Product) Create(product *entity.Product) error {
 }
 func (p *Product) FindById(id string) (*entity.Product, error) {
 	var product entity.Product
-	err := p.DB.Where("id = ?", id).First(&product).Error
+	err := p.DB.First(&product, "id = ?", id).Error
 	return &product, err
 }
 func (p *Product) Update(product *entity.Product) error {
@@ -31,8 +32,10 @@ func (p *Product) Update(product *entity.Product) error {
 	return p.DB.Save(product).Error
 }
 func (p *Product) Delete(id string) error {
+	log.Printf("receiving %s", id)
 	product, err := p.FindById(id)
 	if err != nil {
+		log.Printf("product delete error: %v", id)
 		return err
 	}
 	return p.DB.Delete(product).Error

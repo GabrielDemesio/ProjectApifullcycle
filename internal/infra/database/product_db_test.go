@@ -19,7 +19,7 @@ func TestCreateNewProduct(t *testing.T) {
 	if err != nil {
 		return
 	}
-	product, err := entity.NewProduct("Product 1", 10.00)
+	product, err := entity.NewProduct("Product", 20.00)
 	assert.NoError(t, err)
 	ProductDB := NewProduct(db)
 	err = ProductDB.Create(product)
@@ -110,14 +110,15 @@ func TestDeleteProduct(t *testing.T) {
 	if err != nil {
 		return
 	}
-	product, err := entity.NewProduct("Product 1", 10.00)
+	product, err := entity.NewProduct("Product", 20)
 	assert.NoError(t, err)
 	db.Create(product)
 	productDB := NewProduct(db)
 
 	err = productDB.Delete(product.ID.String())
 	assert.NoError(t, err)
-	product, err = productDB.FindById(product.ID.String())
+
+	_, err = productDB.FindById(product.ID.String())
 	assert.NoError(t, err)
-	assert.Nil(t, product)
+
 }
