@@ -6,6 +6,7 @@ import (
 	"FULLCYCLE/internal/infra/database"
 	"FULLCYCLE/internal/infra/webserver/handlers"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/jwtauth"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -14,7 +15,7 @@ import (
 )
 
 func main() {
-	configs, err := configs.LoadConfig(".")
+	config, err := configs.LoadConfig(".")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,13 +34,17 @@ func main() {
 	productHandler := handlers.NewProductHandler(productDB)
 
 	userDB := database.NewUser(db)
-	userHandler := handlers.NewUserHandler(userDB, configs.TokenAuth, configs.JwtExpiresIn)
+	userHandler := handlers.NewUserHandler(userDB)
 
 	r := chi.NewRouter()
-	//r.Use(middleware.Logger)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.WithValue("jwt", config.TokenAuth))
+	r.Use(middleware.WithValue("jwtExpiresIn", config.JwtExpiresIn))
+
 	r.Use(LogRequest)
 	r.Route("/products", func(r chi.Router) {
-		r.Use(jwtauth.Verifier(configs.TokenAuth))
+		r.Use(jwtauth.Verifier(config.TokenAuth))
 		r.Use(jwtauth.Authenticator)
 		r.Post("/", productHandler.CreateProduct)
 		r.Get("/", productHandler.GetAllProducts)
