@@ -6,6 +6,7 @@ import (
 	"FULLCYCLE/internal/infra/database"
 	"encoding/json"
 	"github.com/go-chi/jwtauth"
+	"github.com/lestrrat-go/jwx/jwt"
 	"net/http"
 	"time"
 )
@@ -25,6 +26,7 @@ func NewUserHandler(userDB database.UserInterface, jwt *jwtauth.JWTAuth, JwtExpi
 }
 
 func (h *UserHandler) GetJWT(w http.ResponseWriter, r *http.Request) {
+	jwt := r.Context().Value("jwt")
 	var user dto.GetJWTInput
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {

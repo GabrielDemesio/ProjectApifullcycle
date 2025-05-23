@@ -6,7 +6,6 @@ import (
 	"FULLCYCLE/internal/infra/database"
 	"FULLCYCLE/internal/infra/webserver/handlers"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/jwtauth"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -37,8 +36,8 @@ func main() {
 	userHandler := handlers.NewUserHandler(userDB, configs.TokenAuth, configs.JwtExpiresIn)
 
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-
+	//r.Use(middleware.Logger)
+	r.Use(LogRequest)
 	r.Route("/products", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(configs.TokenAuth))
 		r.Use(jwtauth.Authenticator)
@@ -52,4 +51,11 @@ func main() {
 	r.Post("users/generate_token", userHandler.GetJWT)
 
 	err = http.ListenAndServe(":8000", r)
+}
+
+func LogRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Request: %s %s", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
 }
